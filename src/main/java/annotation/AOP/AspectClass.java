@@ -1,8 +1,16 @@
 package annotation.AOP;
 
-import org.aspectj.lang.ProceedingJoinPoint;
+import annotation.Cat;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 /**
  * Created by Administrator on 2019/10/10.
@@ -14,11 +22,44 @@ import org.springframework.stereotype.Component;
 public class AspectClass {
     //定义一个可重复使用的切点
     @Pointcut("execution(* hello(..))")
+//    @Pointcut("execution(* annotation.AOP..* (..))")
+//    @Pointcut("args(java.lang.String,java.lang.Integer)")
+//    @Pointcut("target(annotation.AOP.Person)")
+//    @Pointcut(value = "@annotation(annotation.AOP.LYJ)") //指定类lyj标注的类
     public void log(){}
+
+
+    @Before("bean(person)")
+    public void beanLog(){
+        System.out.println("bean log");
+    }
+
+    //前置通知
+    @Before(value = "@annotation(annotation.AOP.LYJ) && execution(* study(..))") //指定类lyj标注的类并且名称为study的方法
+    public void annotationLog(JoinPoint joinPoint) throws Exception {
+
+        System.out.println("annotation log");
+
+        //获取注解中的值
+        String value = ((MethodSignature) joinPoint.getSignature()).getMethod().getAnnotation(LYJ.class).value();
+
+        //获取方法对象
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        Class<?>[] classes = method.getParameterTypes();//获取方法中的参数类型
+        Object[] args = joinPoint.getArgs();//获取方法中参数的引用
+
+        //遍历,将Cat的name设置为注解中的值
+        for(int i=0;i<classes.length;i++){
+            if(classes[i].equals(Cat.class)){
+                Cat cat = (Cat) args[i];
+                cat.setName(value);
+            }
+        }
+    }
 
     //前置通知
     @Before(value = "log()")
-    public void beforeLog(){
+    public void beforeLog()  {
         System.out.println("before log");
     }
 

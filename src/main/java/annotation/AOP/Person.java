@@ -1,6 +1,7 @@
 package annotation.AOP;
 
 
+import annotation.Cat;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,4 +14,11 @@ public class Person {
         }
         return str;
     }
+
+    @LYJ("测试")
+    public void study(String str, Cat cat){
+        System.out.println("study:"+str);
+        System.out.println(cat);
+    }
+
 }
